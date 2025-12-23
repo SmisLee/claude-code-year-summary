@@ -57,7 +57,7 @@ export function ProjectBreakdown({ projects }: ProjectBreakdownProps) {
               </div>
 
               <span className="text-xs text-gray-500 stat-number">
-                {project.conversations.toLocaleString()}<span className="font-sans">회 대화</span>
+                {project.conversations.toLocaleString()} <span className="font-sans">conversations</span>
               </span>
             </div>
           </motion.div>
@@ -67,8 +67,8 @@ export function ProjectBreakdown({ projects }: ProjectBreakdownProps) {
       {projects.length === 0 && (
         <EmptyState
           icon={FolderOpen}
-          title="프로젝트 데이터 없음"
-          description="분석 가능한 프로젝트 정보가 없습니다"
+          title="No project data"
+          description="No analyzable project information"
         />
       )}
     </div>

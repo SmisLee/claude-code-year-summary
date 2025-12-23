@@ -21,7 +21,7 @@ export async function parseClaudeData(
   files: FileList,
   onProgress: (message: string) => void
 ): Promise<ClaudeStats> {
-  onProgress('파일 읽는 중...')
+  onProgress('Reading files...')
 
   const conversations: ConversationData[] = []
   const toolCounts: Map<string, number> = new Map()
@@ -34,7 +34,7 @@ export async function parseClaudeData(
   // Parse each file
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    onProgress(`분석 중... (${i + 1}/${files.length}) - ${file.name}`)
+    onProgress(`Analyzing... (${i + 1}/${files.length}) - ${file.name}`)
 
     try {
       const content = await file.text()
@@ -42,7 +42,7 @@ export async function parseClaudeData(
       // Parse history.jsonl (JSON Lines format) - Main Claude Code history
       if (file.name === 'history.jsonl' || file.name.endsWith('.jsonl')) {
         const lines = content.split('\n').filter(line => line.trim())
-        onProgress(`history.jsonl 파싱 중... (${lines.length} 항목)`)
+        onProgress(`Parsing history.jsonl... (${lines.length} entries)`)
 
         for (const line of lines) {
           try {
@@ -166,11 +166,11 @@ export async function parseClaudeData(
     }
   }
 
-  onProgress('통계 계산 중...')
+  onProgress('Calculating statistics...')
 
   // If no data found, throw error
   if (conversations.length === 0) {
-    throw new Error('분석 가능한 Claude Code 데이터를 찾을 수 없습니다.\n\nhistory.jsonl 파일이 포함된 ~/.claude 폴더를 선택해 주세요.')
+    throw new Error('No analyzable Claude Code data found.\n\nPlease select the ~/.claude folder containing history.jsonl file.')
   }
 
   // Calculate statistics
@@ -445,7 +445,7 @@ function calculateFunStats(conversations: ConversationData[]): FunStats {
   })
 
   // Find most productive day
-  const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   let maxDayCount = 0
   let productiveDay = 2
   dayCounts.forEach((count, day) => {
@@ -457,17 +457,17 @@ function calculateFunStats(conversations: ConversationData[]): FunStats {
 
   // Format favorite time nicely
   const formatHour = (h: number) => {
-    if (h === 0) return '자정'
-    if (h < 12) return `오전 ${h}시`
-    if (h === 12) return '정오'
-    return `오후 ${h - 12}시`
+    if (h === 0) return '12 AM'
+    if (h < 12) return `${h} AM`
+    if (h === 12) return '12 PM'
+    return `${h - 12} PM`
   }
 
   return {
     lateNightCoding,
     weekendWarrior: weekendDays.size,
     earlyBird,
-    longestSession: '알 수 없음',
+    longestSession: 'Unknown',
     favoriteTime: formatHour(favoriteHour),
     mostProductiveDay: dayNames[productiveDay],
   }

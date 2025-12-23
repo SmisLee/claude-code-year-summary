@@ -15,8 +15,8 @@ export function ToolUsageChart({ tools }: ToolUsageChartProps) {
       <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800">
         <EmptyState
           icon={Terminal}
-          title="도구 사용 데이터 없음"
-          description="분석 가능한 도구 사용 정보가 없습니다"
+          title="No tool usage data"
+          description="No analyzable tool usage information"
         />
       </div>
     )
@@ -44,7 +44,7 @@ export function ToolUsageChart({ tools }: ToolUsageChartProps) {
                   <span className="text-white font-medium">{tool.name}</span>
                 </div>
                 <span className="text-gray-400 text-sm stat-number">
-                  {tool.count.toLocaleString()}<span className="font-sans">회</span>
+                  {tool.count.toLocaleString()} <span className="font-sans">times</span>
                 </span>
               </div>
 

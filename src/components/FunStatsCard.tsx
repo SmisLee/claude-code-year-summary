@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { FunStats } from '@/lib/types'
 import { Moon, Sun, Calendar, Clock, Star, Zap } from 'lucide-react'
 import { format } from 'date-fns'
-import { ko } from 'date-fns/locale'
 
 interface FunStatsCardProps {
   funStats: FunStats
@@ -18,50 +17,50 @@ export function FunStatsCard({ funStats, peakDay }: FunStatsCardProps) {
   const stats = [
     {
       icon: <Moon className="w-6 h-6" />,
-      label: '야행성 개발자',
+      label: 'Night Owl',
       value: funStats.lateNightCoding,
-      suffix: '번',
-      description: '자정 이후 코딩',
+      suffix: ' times',
+      description: 'Coding after midnight',
       color: 'from-indigo-500 to-purple-500',
     },
     {
       icon: <Calendar className="w-6 h-6" />,
-      label: '주말 전사',
+      label: 'Weekend Warrior',
       value: funStats.weekendWarrior,
-      suffix: '일',
-      description: '주말에도 코딩한 날',
+      suffix: ' days',
+      description: 'Coding on weekends',
       color: 'from-green-500 to-emerald-500',
     },
     {
       icon: <Sun className="w-6 h-6" />,
-      label: '얼리버드',
+      label: 'Early Bird',
       value: funStats.earlyBird,
-      suffix: '번',
-      description: '새벽 5-7시 코딩',
+      suffix: ' times',
+      description: 'Coding at 5-7 AM',
       color: 'from-amber-500 to-orange-500',
     },
     {
       icon: <Clock className="w-6 h-6" />,
-      label: '황금 시간대',
+      label: 'Peak Hours',
       value: funStats.favoriteTime,
       suffix: '',
-      description: '가장 활발한 시간',
+      description: 'Most active time',
       color: 'from-blue-500 to-cyan-500',
     },
     {
       icon: <Star className="w-6 h-6" />,
-      label: '최고의 날',
+      label: 'Best Day',
       value: funStats.mostProductiveDay,
       suffix: '',
-      description: '가장 생산적인 요일',
+      description: 'Most productive day',
       color: 'from-pink-500 to-rose-500',
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      label: '피크 데이',
+      label: 'Peak Day',
       value: peakDay.conversations,
-      suffix: '회',
-      description: format(peakDay.date, 'M월 d일', { locale: ko }),
+      suffix: ' convos',
+      description: format(peakDay.date, 'MMM d'),
       color: 'from-yellow-500 to-amber-500',
     },
   ]

@@ -6,9 +6,9 @@ import { FileDropzone } from '@/components/FileDropzone'
 import { YearSummary } from '@/components/YearSummary'
 import { AdSlot } from '@/components/AdSlot'
 
-// AdSense 광고 단위 ID (승인 후 AdSense 콘솔에서 생성)
+// AdSense ad unit IDs (create in AdSense console after approval)
 const AD_SLOTS = {
-  landing: '', // 랜딩 페이지 광고
+  landing: '', // Landing page ad
 }
 import { ClaudeStats } from '@/lib/types'
 import { Sparkles, Code2, Terminal, Play, BarChart3, Calendar, Flame } from 'lucide-react'
@@ -52,12 +52,12 @@ export default function Home() {
               </h1>
 
               <p className="text-xl text-gray-400 max-w-lg mx-auto mb-2">
-                {new Date().getFullYear()}년, 당신과 Claude의 코딩 여정을 돌아보세요
+                Look back on your {new Date().getFullYear()} coding journey with Claude
               </p>
 
               <div className="flex items-center justify-center gap-2 text-amber-500/80 text-sm">
                 <Sparkles className="w-4 h-4" />
-                <span>모든 데이터는 브라우저에서만 처리됩니다</span>
+                <span>All data is processed locally in your browser</span>
               </div>
             </motion.div>
 
@@ -83,21 +83,21 @@ export default function Home() {
               className="mt-16 w-full max-w-3xl"
             >
               <p className="text-gray-500 text-sm mb-6 text-center">
-                이런 통계를 확인할 수 있어요
+                See stats like these
               </p>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
                   <Calendar className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">활동 히트맵</p>
+                  <p className="text-xs text-gray-400">Activity Heatmap</p>
                 </div>
                 <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
                   <BarChart3 className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">도구 사용량</p>
+                  <p className="text-xs text-gray-400">Tool Usage</p>
                 </div>
                 <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
                   <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">연속 기록</p>
+                  <p className="text-xs text-gray-400">Streaks</p>
                 </div>
               </div>
             </motion.div>
@@ -122,11 +122,11 @@ export default function Home() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setStats(generateDemoStats())}
-              aria-label="데모 데이터로 미리보기"
+              aria-label="Preview with demo data"
               className="mt-8 flex items-center gap-2 px-6 py-3 text-sm bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 hover:border-amber-500/50 rounded-full transition-all"
             >
               <Play className="w-4 h-4" aria-hidden="true" />
-              데모로 미리보기
+              Try Demo
             </motion.button>
 
             {/* Privacy note */}
@@ -136,7 +136,7 @@ export default function Home() {
               transition={{ delay: 1 }}
               className="mt-6 text-xs text-gray-600"
             >
-              ~/.claude 폴더를 드래그하거나 클릭하여 선택하세요
+              Drag and drop your ~/.claude folder or click to select
             </motion.p>
           </motion.div>
         ) : (
@@ -197,8 +197,8 @@ function generateDemoStats(): ClaudeStats {
       weekendWarrior: 62,
       earlyBird: 23,
       longestSession: '4h 32m',
-      favoriteTime: '오후 2-4시',
-      mostProductiveDay: '화요일',
+      favoriteTime: '2-4 PM',
+      mostProductiveDay: 'Tuesday',
     },
 
     firstConversation: new Date('2025-01-15'),

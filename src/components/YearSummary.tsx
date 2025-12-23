@@ -14,10 +14,10 @@ import { ModelUsageChart } from './ModelUsageChart'
 import { Toast } from './Toast'
 import { AdSlot } from './AdSlot'
 
-// AdSense 광고 단위 ID (승인 후 AdSense 콘솔에서 생성)
+// AdSense ad unit IDs (create in AdSense console after approval)
 const AD_SLOTS = {
-  afterHeatmap: '', // 히트맵 아래 광고
-  beforeFooter: '', // Footer 위 광고
+  afterHeatmap: '', // Ad below heatmap
+  beforeFooter: '', // Ad above footer
 }
 import {
   MessageSquare,
@@ -34,7 +34,6 @@ import {
   Cpu,
 } from 'lucide-react'
 import { format } from 'date-fns'
-import { ko } from 'date-fns/locale'
 
 interface YearSummaryProps {
   stats: ClaudeStats
@@ -73,7 +72,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
 
   const handleCopyToClipboard = async () => {
     await navigator.clipboard.writeText(getShareText())
-    setToastMessage('클립보드에 복사되었습니다!')
+    setToastMessage('Copied to clipboard!')
     setShowToast(true)
     setShowShareMenu(false)
   }
@@ -108,11 +107,11 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
             onClick={onReset}
-            aria-label="처음 화면으로 돌아가기"
+            aria-label="Back to home"
             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-            <span>처음으로</span>
+            <span>Back</span>
           </button>
 
           <h1 className="text-lg font-semibold gradient-text">
@@ -122,11 +121,11 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           <div className="relative">
             <button
               onClick={handleShare}
-              aria-label="통계 공유하기"
+              aria-label="Share stats"
               className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-full hover:bg-amber-500/20 transition-colors"
             >
               <Share2 className="w-4 h-4" aria-hidden="true" />
-              <span className="hidden sm:inline">공유</span>
+              <span className="hidden sm:inline">Share</span>
             </button>
 
             {/* 공유 메뉴 드롭다운 */}
@@ -141,14 +140,14 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
                   className="flex items-center gap-3 w-full px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors"
                 >
                   <Copy className="w-4 h-4" />
-                  클립보드에 복사
+                  Copy to clipboard
                 </button>
                 <button
                   onClick={handleShareTwitter}
                   className="flex items-center gap-3 w-full px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors"
                 >
                   <Twitter className="w-4 h-4" />
-                  X(Twitter)에 공유
+                  Share on X (Twitter)
                 </button>
               </motion.div>
             )}
@@ -179,27 +178,27 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           className="relative"
         >
           <p className="text-amber-500/80 text-sm uppercase tracking-wider mb-6">
-            {format(stats.firstConversation, 'yyyy년 M월 d일', { locale: ko })}부터 함께
+            Together since {format(stats.firstConversation, 'MMMM d, yyyy')}
           </p>
 
           <h2 className="text-3xl md:text-4xl font-medium text-gray-300 mb-2">
-            당신과 Claude의
+            Your Journey with Claude
           </h2>
 
-          {/* 핵심 숫자 강조 */}
+          {/* Key number highlight */}
           <div className="mb-6">
             <span className="text-7xl md:text-9xl font-black gradient-text stat-number">
               {stats.activeDays}
             </span>
-            <span className="text-2xl md:text-3xl text-gray-400 ml-2">일</span>
+            <span className="text-2xl md:text-3xl text-gray-400 ml-2">days</span>
           </div>
 
           <p className="text-lg text-gray-500">
             <span className="text-white stat-number">{stats.totalConversations.toLocaleString()}</span>
-            <span className="mx-1">번의 대화</span>
+            <span className="mx-1">conversations</span>
             <span className="text-gray-600 mx-2">·</span>
             <span className="text-white stat-number">{stats.projectCount}</span>
-            <span className="mx-1">개의 프로젝트</span>
+            <span className="mx-1">projects</span>
           </p>
         </motion.div>
       </motion.section>
@@ -215,9 +214,9 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           <motion.div variants={itemVariants}>
             <StatCard
               icon={<MessageSquare className="w-6 h-6" />}
-              label="총 대화"
+              label="Total Conversations"
               value={stats.totalConversations}
-              suffix="회"
+              suffix=""
               color="amber"
             />
           </motion.div>
@@ -225,9 +224,9 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           <motion.div variants={itemVariants}>
             <StatCard
               icon={<Calendar className="w-6 h-6" />}
-              label="활동 일수"
+              label="Active Days"
               value={stats.activeDays}
-              suffix="일"
+              suffix=""
               color="blue"
             />
           </motion.div>
@@ -235,9 +234,9 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           <motion.div variants={itemVariants}>
             <StatCard
               icon={<Flame className="w-6 h-6" />}
-              label="최장 연속"
+              label="Longest Streak"
               value={stats.longestStreak}
-              suffix="일"
+              suffix=" days"
               color="orange"
             />
           </motion.div>
@@ -245,9 +244,9 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           <motion.div variants={itemVariants}>
             <StatCard
               icon={<FolderOpen className="w-6 h-6" />}
-              label="프로젝트"
+              label="Projects"
               value={stats.projectCount}
-              suffix="개"
+              suffix=""
               color="green"
             />
           </motion.div>
@@ -263,7 +262,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
       >
         <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
           <Calendar className="w-6 h-6 text-green-400" />
-          활동 히트맵
+          Activity Heatmap
         </h3>
         <YearHeatmap data={stats.weeklyHeatmap} />
       </motion.section>
@@ -283,7 +282,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         className="max-w-6xl mx-auto px-4 mt-16"
       >
         <h3 className="text-2xl font-bold text-white mb-6">
-          📊 월별 활동
+          📊 Monthly Activity
         </h3>
         <MonthlyChart data={stats.monthlyActivity} />
       </motion.section>
@@ -297,7 +296,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
       >
         <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
           <Clock className="w-6 h-6 text-indigo-400" />
-          시간대별 활동 패턴
+          Activity by Time of Day
         </h3>
         <TimeAnalysisChart data={stats.timeAnalysis} />
       </motion.section>
@@ -311,7 +310,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
       >
         <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
           <Cpu className="w-6 h-6 text-purple-400" />
-          모델별 사용량
+          Model Usage
         </h3>
         <ModelUsageChart models={stats.modelUsage} />
       </motion.section>
@@ -327,7 +326,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           <div>
             <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
               <Terminal className="w-6 h-6 text-amber-400" />
-              가장 많이 사용한 도구
+              Top Tools
             </h3>
             <ToolUsageChart tools={stats.topTools} />
           </div>
@@ -335,7 +334,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           <div>
             <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
               <FolderOpen className="w-6 h-6 text-blue-400" />
-              상위 프로젝트
+              Top Projects
             </h3>
             <ProjectBreakdown projects={stats.topProjects} />
           </div>
@@ -350,7 +349,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         className="max-w-6xl mx-auto px-4 mt-16"
       >
         <h3 className="text-2xl font-bold text-white mb-6">
-          ✨ 재미있는 통계
+          ✨ Fun Stats
         </h3>
         <FunStatsCard funStats={stats.funStats} peakDay={stats.peakDay} />
       </motion.section>
@@ -374,7 +373,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
             Made with ❤️ and Claude Code
           </p>
           <p className="text-gray-600 text-xs mt-2">
-            모든 데이터는 브라우저에서만 처리됩니다. 서버로 전송되지 않습니다.
+            All data is processed locally in your browser. Nothing is sent to any server.
           </p>
         </div>
       </motion.footer>

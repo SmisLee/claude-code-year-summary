@@ -34,7 +34,7 @@ export function Toast({ message, isVisible, onClose, duration = 3000 }: ToastPro
             <button
               onClick={onClose}
               className="p-1 hover:bg-gray-700 rounded-full transition-colors"
-              aria-label="닫기"
+              aria-label="Close"
             >
               <X className="w-4 h-4 text-gray-400" />
             </button>

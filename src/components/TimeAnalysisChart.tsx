@@ -18,17 +18,17 @@ interface TimeAnalysisChartProps {
   data: TimeAnalysis
 }
 
-const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-// 시간대별 색상 (디자이너 피드백 반영)
+// Time-based colors
 const getTimeColor = (hour: number): string => {
-  if (hour >= 0 && hour < 6) return '#6366F1'   // indigo - 야간
-  if (hour >= 6 && hour < 12) return '#F59E0B'  // amber - 오전
-  if (hour >= 12 && hour < 18) return '#EF4444' // red - 오후
-  return '#8B5CF6'                               // violet - 저녁
+  if (hour >= 0 && hour < 6) return '#6366F1'   // indigo - night
+  if (hour >= 6 && hour < 12) return '#F59E0B'  // amber - morning
+  if (hour >= 12 && hour < 18) return '#EF4444' // red - afternoon
+  return '#8B5CF6'                               // violet - evening
 }
 
-// 시간대 아이콘
+// Time-based icons
 const getTimeIcon = (hour: number) => {
   if (hour >= 0 && hour < 6) return <Moon className="w-4 h-4" />
   if (hour >= 6 && hour < 12) return <Sunrise className="w-4 h-4" />
@@ -36,12 +36,12 @@ const getTimeIcon = (hour: number) => {
   return <Sunset className="w-4 h-4" />
 }
 
-// 시간 포맷
+// Hour format
 const formatHour = (hour: number): string => {
-  if (hour === 0) return '자정'
-  if (hour === 12) return '정오'
-  if (hour < 12) return `${hour}시`
-  return `${hour}시`
+  if (hour === 0) return '12 AM'
+  if (hour === 12) return '12 PM'
+  if (hour < 12) return `${hour} AM`
+  return `${hour - 12} PM`
 }
 
 export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
@@ -90,7 +90,7 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
           <Clock className="w-6 h-6" style={{ color: peakHourInfo.color }} />
         </div>
         <div>
-          <p className="text-gray-400 text-sm">가장 활발한 시간대</p>
+          <p className="text-gray-400 text-sm">Most active time</p>
           <p className="text-xl font-bold text-white flex items-center gap-2">
             <span style={{ color: peakHourInfo.color }}>{peakHourInfo.icon}</span>
             {peakHourInfo.label}
@@ -109,7 +109,7 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
         >
           <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Clock className="w-5 h-5 text-indigo-400" />
-            24시간 활동 패턴
+            24-Hour Activity
           </h4>
 
           <div className="h-[280px]">
@@ -128,7 +128,7 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
                   axisLine={false}
                 />
                 <Radar
-                  name="활동량"
+                  name="Activity"
                   dataKey="count"
                   stroke="#6366F1"
                   fill="#6366F1"
@@ -142,34 +142,34 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
                     borderRadius: '8px',
                     color: '#fff',
                   }}
-                  formatter={(value: number) => [`${value}회`, '대화 수']}
+                  formatter={(value: number) => [`${value}`, 'Conversations']}
                 />
               </RadarChart>
             </ResponsiveContainer>
           </div>
 
-          {/* 시간대 범례 */}
+          {/* Time legend */}
           <div className="flex justify-center gap-4 mt-4 text-xs">
             <div className="flex items-center gap-1">
               <Moon className="w-3 h-3 text-indigo-500" />
-              <span className="text-gray-400">야간</span>
+              <span className="text-gray-400">Night</span>
             </div>
             <div className="flex items-center gap-1">
               <Sunrise className="w-3 h-3 text-amber-500" />
-              <span className="text-gray-400">오전</span>
+              <span className="text-gray-400">Morning</span>
             </div>
             <div className="flex items-center gap-1">
               <Sun className="w-3 h-3 text-red-500" />
-              <span className="text-gray-400">오후</span>
+              <span className="text-gray-400">Afternoon</span>
             </div>
             <div className="flex items-center gap-1">
               <Sunset className="w-3 h-3 text-violet-500" />
-              <span className="text-gray-400">저녁</span>
+              <span className="text-gray-400">Evening</span>
             </div>
           </div>
         </motion.div>
 
-        {/* 요일×시간 2D 히트맵 */}
+        {/* Day×Hour 2D Heatmap */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -177,11 +177,11 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
           className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800"
         >
           <h4 className="text-lg font-semibold text-white mb-4">
-            요일별 활동 패턴
+            Weekly Activity Pattern
           </h4>
 
           <div className="overflow-x-auto">
-            {/* 시간 레이블 (상단) */}
+            {/* Hour labels (top) */}
             <div className="flex mb-2 ml-8">
               {[0, 6, 12, 18].map(hour => (
                 <div
@@ -189,7 +189,7 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
                   className="text-xs text-gray-500"
                   style={{ width: '25%', textAlign: 'center' }}
                 >
-                  {hour === 0 ? '0시' : hour === 12 ? '12시' : `${hour}시`}
+                  {hour === 0 ? '12AM' : hour === 12 ? '12PM' : `${hour > 12 ? hour - 12 : hour}${hour >= 12 ? 'PM' : 'AM'}`}
                 </div>
               ))}
             </div>
@@ -227,7 +227,7 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
                               animate={{ opacity: 1, y: 0 }}
                               className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-white whitespace-nowrap z-50"
                             >
-                              {dayName} {hourIndex}시: {count}회
+                              {dayName} {hourIndex}:00 - {count} convos
                             </motion.div>
                           )}
                         </motion.div>
@@ -239,9 +239,9 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
             </div>
           </div>
 
-          {/* 색상 범례 */}
+          {/* Color legend */}
           <div className="flex items-center justify-end gap-2 mt-4 text-xs text-gray-400">
-            <span>적음</span>
+            <span>Less</span>
             <div className="flex gap-[2px]">
               {['#1a1a2e', '#312e81', '#4f46e5', '#0ea5e9', '#06b6d4'].map((color, i) => (
                 <div
@@ -251,7 +251,7 @@ export function TimeAnalysisChart({ data }: TimeAnalysisChartProps) {
                 />
               ))}
             </div>
-            <span>많음</span>
+            <span>More</span>
           </div>
         </motion.div>
       </div>

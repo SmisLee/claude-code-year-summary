@@ -23,7 +23,7 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 shadow-xl">
           <p className="text-white font-medium mb-1">{label}</p>
           <p className="text-amber-400 text-sm">
-            {payload[0]?.value?.toLocaleString() || 0}회 대화
+            {payload[0]?.value?.toLocaleString() || 0} conversations
           </p>
         </div>
       )

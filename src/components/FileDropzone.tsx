@@ -27,20 +27,20 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
     setIsLoading(true)
     setError(null)
     setLoadingStep('reading')
-    setProgress('파일 읽는 중...')
+    setProgress('Reading files...')
 
     try {
       const stats = await parseClaudeData(files, (msg) => {
         setProgress(msg)
-        // 진행 상태에 따라 step 업데이트
-        if (msg.includes('읽는')) setLoadingStep('reading')
-        else if (msg.includes('분석') || msg.includes('파싱')) setLoadingStep('parsing')
-        else if (msg.includes('계산')) setLoadingStep('calculating')
+        // Update step based on progress
+        if (msg.includes('Reading')) setLoadingStep('reading')
+        else if (msg.includes('Analyzing') || msg.includes('Parsing')) setLoadingStep('parsing')
+        else if (msg.includes('Calculating')) setLoadingStep('calculating')
       })
       setLoadingStep('done')
       onDataParsed(stats)
     } catch (err) {
-      setError(err instanceof Error ? err.message : '파일 처리 중 오류가 발생했습니다')
+      setError(err instanceof Error ? err.message : 'An error occurred while processing files')
     } finally {
       setIsLoading(false)
       setProgress('')
@@ -99,7 +99,7 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
       onDragLeave={handleDragLeave}
       role="button"
       tabIndex={0}
-      aria-label="Claude Code 데이터 폴더 업로드"
+      aria-label="Upload Claude Code data folder"
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick() }}
       animate={{
         scale: isDragOver ? 1.02 : 1,
@@ -130,23 +130,23 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
       <div className="flex flex-col items-center gap-4">
         {isLoading ? (
           <div className="w-full max-w-xs">
-            {/* 단계별 진행 표시 */}
+            {/* Step-by-step progress */}
             <div className="space-y-3">
               <LoadingStepItem
                 icon={<FileText className="w-4 h-4" />}
-                label="파일 읽기"
+                label="Reading files"
                 isActive={loadingStep === 'reading'}
                 isCompleted={['parsing', 'calculating', 'done'].includes(loadingStep)}
               />
               <LoadingStepItem
                 icon={<Folder className="w-4 h-4" />}
-                label="데이터 분석"
+                label="Analyzing data"
                 isActive={loadingStep === 'parsing'}
                 isCompleted={['calculating', 'done'].includes(loadingStep)}
               />
               <LoadingStepItem
                 icon={<BarChart3 className="w-4 h-4" />}
-                label="통계 계산"
+                label="Calculating stats"
                 isActive={loadingStep === 'calculating'}
                 isCompleted={loadingStep === 'done'}
               />
@@ -164,7 +164,7 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
               }}
               className="text-sm text-gray-400 hover:text-white underline"
             >
-              다시 시도
+              Try again
             </button>
           </>
         ) : (
@@ -182,16 +182,16 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
 
             <div>
               <p className="text-lg text-white font-medium">
-                {isDragOver ? '여기에 놓으세요!' : '~/.claude 폴더를 드래그하세요'}
+                {isDragOver ? 'Drop it here!' : 'Drag your ~/.claude folder here'}
               </p>
               <p className="text-sm text-gray-400 mt-1">
-                또는 클릭하여 폴더 선택
+                or click to select folder
               </p>
             </div>
 
             <div className="flex items-center gap-2 text-xs text-gray-500 mt-4">
               <CheckCircle className="w-4 h-4 text-green-500/70" />
-              <span>프라이버시 보장 - 모든 처리는 브라우저에서 수행됩니다</span>
+              <span>Privacy guaranteed - all processing happens in your browser</span>
             </div>
           </>
         )}

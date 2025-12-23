@@ -62,19 +62,19 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
       }
     })
 
-    // 모바일용: 월별 집계
+    // Mobile: Monthly aggregation
     const monthlyTotals = new Map<string, number>()
-    const koreanMonths = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
     data.forEach(d => {
       if (d.date && d.count > 0) {
         const month = new Date(d.date).getMonth()
-        const monthName = koreanMonths[month]
+        const monthName = monthNames[month]
         monthlyTotals.set(monthName, (monthlyTotals.get(monthName) || 0) + d.count)
       }
     })
 
-    const recentMonthsData = koreanMonths.map(month => ({
+    const recentMonthsData = monthNames.map(month => ({
       month,
       total: monthlyTotals.get(month) || 0,
     }))
@@ -87,7 +87,7 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
     if (count === 0) return '#1a1a1a'
     const intensity = Math.min(count / Math.max(maxCount, 1), 1)
 
-    // amber 계열로 브랜드 컬러 통일
+    // Brand color with amber palette
     if (intensity < 0.25) return '#78350f' // amber-900
     if (intensity < 0.5) return '#92400e'  // amber-800
     if (intensity < 0.75) return '#b45309' // amber-700
@@ -99,7 +99,7 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
 
   return (
     <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800">
-      {/* 모바일: 월별 바 차트 */}
+      {/* Mobile: Monthly bar chart */}
       <div className="block md:hidden">
         <div className="space-y-3">
           {recentMonthsData.map((monthData, index) => (
@@ -126,12 +126,12 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
           ))}
         </div>
 
-        {/* 전체 보기 토글 */}
+        {/* Full view toggle */}
         <button
           onClick={() => setShowFullYear(!showFullYear)}
           className="mt-4 w-full text-xs text-amber-500/70 hover:text-amber-500 transition-colors"
         >
-          {showFullYear ? '간략히 보기' : '전체 히트맵 보기'}
+          {showFullYear ? 'Show less' : 'View full heatmap'}
         </button>
 
         {showFullYear && (
@@ -146,7 +146,7 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
         )}
       </div>
 
-      {/* 데스크톱: 전체 히트맵 */}
+      {/* Desktop: Full heatmap */}
       <div className="hidden md:block overflow-x-auto">
         <HeatmapGrid
           weeks={weeks}
@@ -174,7 +174,7 @@ export function YearHeatmap({ data }: YearHeatmapProps) {
   )
 }
 
-// 히트맵 그리드 컴포넌트 분리
+// Heatmap grid component
 function HeatmapGrid({
   weeks,
   monthLabels,
@@ -232,13 +232,13 @@ function HeatmapGrid({
                   }}
                   tabIndex={day.date ? 0 : -1}
                   role="gridcell"
-                  aria-label={day.date ? `${day.date}: ${day.count}회 활동` : undefined}
+                  aria-label={day.date ? `${day.date}: ${day.count} activities` : undefined}
                   className="heatmap-cell w-[12px] h-[12px] rounded-sm cursor-pointer relative group focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-gray-900"
                   style={{ backgroundColor: getColor(day.count) }}
                 >
                   {day.date && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 rounded text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity pointer-events-none z-10">
-                      {day.date}: {day.count}회
+                      {day.date}: {day.count}
                     </div>
                   )}
                 </motion.div>

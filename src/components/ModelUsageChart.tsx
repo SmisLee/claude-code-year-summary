@@ -24,13 +24,13 @@ const getModelIcon = (name: string) => {
   return <Bot className="w-4 h-4" />
 }
 
-// 모델 설명
+// Model description
 const getModelDescription = (name: string): string => {
   const lowerName = name.toLowerCase()
-  if (lowerName.includes('opus')) return '가장 강력한 모델'
-  if (lowerName.includes('sonnet')) return '균형 잡힌 성능'
-  if (lowerName.includes('haiku')) return '빠른 응답 속도'
-  return '기타 모델'
+  if (lowerName.includes('opus')) return 'Most powerful model'
+  if (lowerName.includes('sonnet')) return 'Balanced performance'
+  if (lowerName.includes('haiku')) return 'Fast response'
+  return 'Other model'
 }
 
 export function ModelUsageChart({ models }: ModelUsageChartProps) {
@@ -86,7 +86,7 @@ export function ModelUsageChart({ models }: ModelUsageChartProps) {
                     color: '#fff',
                   }}
                   formatter={(value: number, name: string) => [
-                    `${value.toLocaleString()}회`,
+                    `${value.toLocaleString()} times`,
                     name,
                   ]}
                 />
@@ -147,7 +147,7 @@ export function ModelUsageChart({ models }: ModelUsageChartProps) {
               {/* 상세 정보 */}
               <div className="flex justify-between mt-1 text-xs text-gray-500">
                 <span>{getModelDescription(model.name)}</span>
-                <span>{model.count.toLocaleString()}회</span>
+                <span>{model.count.toLocaleString()} times</span>
               </div>
             </motion.div>
           ))}
@@ -155,9 +155,9 @@ export function ModelUsageChart({ models }: ModelUsageChartProps) {
           {/* 총계 */}
           <div className="pt-4 border-t border-gray-800">
             <div className="flex justify-between items-center">
-              <span className="text-gray-400 text-sm">총 대화</span>
+              <span className="text-gray-400 text-sm">Total conversations</span>
               <span className="text-white font-bold stat-number">
-                {totalCount.toLocaleString()}회
+                {totalCount.toLocaleString()}
               </span>
             </div>
           </div>
