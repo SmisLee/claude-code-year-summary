@@ -11,6 +11,8 @@ import { FunStatsCard } from './FunStatsCard'
 import { MonthlyChart } from './MonthlyChart'
 import { TimeAnalysisChart } from './TimeAnalysisChart'
 import { ModelUsageChart } from './ModelUsageChart'
+import { ProductivityStatsCard } from './ProductivityStatsCard'
+import { CodeWorkPatternChart } from './CodeWorkPatternChart'
 import { Toast } from './Toast'
 import { AdSlot } from './AdSlot'
 
@@ -32,6 +34,8 @@ import {
   Twitter,
   Clock,
   Cpu,
+  TrendingUp,
+  GitCompare,
 } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -341,6 +345,34 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         </div>
       </motion.section>
 
+      {/* Productivity Stats */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="max-w-6xl mx-auto px-4 mt-16"
+      >
+        <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+          <TrendingUp className="w-6 h-6 text-green-400" />
+          Productivity Insights
+        </h3>
+        <ProductivityStatsCard stats={stats.productivityStats} />
+      </motion.section>
+
+      {/* Code Work Pattern */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="max-w-6xl mx-auto px-4 mt-16"
+      >
+        <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+          <GitCompare className="w-6 h-6 text-cyan-400" />
+          Your Coding Style
+        </h3>
+        <CodeWorkPatternChart pattern={stats.codeWorkPattern} />
+      </motion.section>
+
       {/* Fun Stats */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -349,7 +381,7 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         className="max-w-6xl mx-auto px-4 mt-16"
       >
         <h3 className="text-2xl font-bold text-white mb-6">
-          ✨ Fun Stats
+          Fun Stats
         </h3>
         <FunStatsCard funStats={stats.funStats} peakDay={stats.peakDay} />
       </motion.section>

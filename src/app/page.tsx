@@ -11,7 +11,7 @@ const AD_SLOTS = {
   landing: '', // Landing page ad
 }
 import { ClaudeStats } from '@/lib/types'
-import { Sparkles, Code2, Terminal, Play, BarChart3, Calendar, Flame } from 'lucide-react'
+import { Sparkles, Code2, Terminal, Play, BarChart3, Calendar, Flame, Cpu, FolderOpen, Moon } from 'lucide-react'
 
 export default function Home() {
   const [stats, setStats] = useState<ClaudeStats | null>(null)
@@ -98,6 +98,18 @@ export default function Home() {
                 <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
                   <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
                   <p className="text-xs text-gray-400">Streaks</p>
+                </div>
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                  <Cpu className="w-6 h-6 text-purple-500 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">Model Usage</p>
+                </div>
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                  <FolderOpen className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">Projects</p>
+                </div>
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                  <Moon className="w-6 h-6 text-indigo-500 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">Night Owl</p>
                 </div>
               </div>
             </motion.div>
@@ -216,6 +228,27 @@ function generateDemoStats(): ClaudeStats {
 
     // 시간대별 분석
     timeAnalysis: generateTimeAnalysisData(),
+
+    // 생산성 지표
+    productivityStats: {
+      messagesPerConversation: 7.2,
+      mostActiveMonth: 'Sep',
+      mostActiveMonthCount: 187,
+      marathonSessions: 34,
+      longestBreak: 12,
+      comebackStreak: 8,
+      avgConversationsPerActiveDay: 4.3,
+    },
+
+    // 코드 작업 패턴
+    codeWorkPattern: {
+      explorationRatio: 45,
+      modificationRatio: 55,
+      explorationTools: 4497,  // Read + Grep + Glob
+      modificationTools: 4877, // Edit + Write
+      automationUsage: 432,    // Task
+      workStyle: 'balanced',
+    },
   }
 }
 

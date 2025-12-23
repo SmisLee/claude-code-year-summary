@@ -1,4 +1,4 @@
-import { ClaudeStats, HeatmapData, MonthlyActivity, ToolUsage, ProjectUsage, FunStats, ModelUsage, TimeAnalysis, HourlyActivity, DayHourActivity } from './types'
+import { ClaudeStats, HeatmapData, MonthlyActivity, ToolUsage, ProjectUsage, FunStats, ModelUsage, TimeAnalysis, HourlyActivity, DayHourActivity, ProductivityStats, CodeWorkPattern } from './types'
 
 interface ConversationData {
   timestamp: Date
@@ -216,6 +216,12 @@ export async function parseClaudeData(
   // 시간대별 분석
   const timeAnalysis = calculateTimeAnalysis(conversations)
 
+  // 생산성 지표
+  const productivityStats = calculateProductivityStats(conversations, dailyActivity, monthlyActivity, totalMessages)
+
+  // 코드 작업 패턴
+  const codeWorkPattern = calculateCodeWorkPattern(toolCounts)
+
   return {
     totalConversations: conversations.length,
     totalMessages,
@@ -236,6 +242,8 @@ export async function parseClaudeData(
     },
     modelUsage,
     timeAnalysis,
+    productivityStats,
+    codeWorkPattern,
   }
 }
 
@@ -580,5 +588,134 @@ function calculateTimeAnalysis(conversations: ConversationData[]): TimeAnalysis 
     dayHourMatrix,
     peakHour,
     peakDay,
+  }
+}
+
+// 생산성 지표 계산
+function calculateProductivityStats(
+  conversations: ConversationData[],
+  dailyActivity: Map<string, number>,
+  monthlyActivity: MonthlyActivity[],
+  totalMessages: number
+): ProductivityStats {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+  // 대화당 평균 메시지 수
+  const messagesPerConversation = conversations.length > 0
+    ? Math.round((totalMessages / conversations.length) * 10) / 10
+    : 0
+
+  // 가장 활발했던 달
+  let mostActiveMonth = 'Jan'
+  let mostActiveMonthCount = 0
+  for (const activity of monthlyActivity) {
+    if (activity.conversations > mostActiveMonthCount) {
+      mostActiveMonthCount = activity.conversations
+      mostActiveMonth = activity.month
+    }
+  }
+
+  // 마라톤 세션 (2시간+ 연속 활동)
+  const sortedConvs = [...conversations].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+  let marathonSessions = 0
+  let sessionStart = sortedConvs[0]?.timestamp
+  let lastTimestamp = sortedConvs[0]?.timestamp
+
+  for (let i = 1; i < sortedConvs.length; i++) {
+    const current = sortedConvs[i].timestamp
+    const diffMinutes = (current.getTime() - lastTimestamp.getTime()) / (1000 * 60)
+
+    if (diffMinutes > 30) {
+      // 세션 종료, 길이 체크
+      const sessionLength = (lastTimestamp.getTime() - sessionStart.getTime()) / (1000 * 60)
+      if (sessionLength >= 120) {
+        marathonSessions++
+      }
+      sessionStart = current
+    }
+    lastTimestamp = current
+  }
+
+  // 가장 긴 휴식 일수
+  const dates = Array.from(dailyActivity.keys()).sort()
+  let longestBreak = 0
+  let comebackStreak = 0
+
+  for (let i = 1; i < dates.length; i++) {
+    const prev = new Date(dates[i - 1])
+    const curr = new Date(dates[i])
+    const diffDays = Math.floor((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (diffDays > longestBreak) {
+      longestBreak = diffDays - 1
+
+      // 복귀 후 연속 사용 일수 계산
+      let streak = 1
+      for (let j = i + 1; j < dates.length; j++) {
+        const prevDate = new Date(dates[j - 1])
+        const currDate = new Date(dates[j])
+        const diff = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24))
+        if (diff === 1) {
+          streak++
+        } else {
+          break
+        }
+      }
+      comebackStreak = streak
+    }
+  }
+
+  // 활동일당 평균 대화 수
+  const activeDays = dailyActivity.size
+  const avgConversationsPerActiveDay = activeDays > 0
+    ? Math.round((conversations.length / activeDays) * 10) / 10
+    : 0
+
+  return {
+    messagesPerConversation,
+    mostActiveMonth,
+    mostActiveMonthCount,
+    marathonSessions,
+    longestBreak,
+    comebackStreak,
+    avgConversationsPerActiveDay,
+  }
+}
+
+// 코드 작업 패턴 계산
+function calculateCodeWorkPattern(toolCounts: Map<string, number>): CodeWorkPattern {
+  // 탐색 도구: Read, Grep, Glob
+  const explorationTools = (toolCounts.get('Read') || 0) +
+                           (toolCounts.get('Grep') || 0) +
+                           (toolCounts.get('Glob') || 0)
+
+  // 수정 도구: Edit, Write
+  const modificationTools = (toolCounts.get('Edit') || 0) +
+                            (toolCounts.get('Write') || 0)
+
+  // 자동화 도구: Task
+  const automationUsage = toolCounts.get('Task') || 0
+
+  const total = explorationTools + modificationTools
+  const explorationRatio = total > 0 ? Math.round((explorationTools / total) * 100) : 50
+  const modificationRatio = total > 0 ? Math.round((modificationTools / total) * 100) : 50
+
+  // 작업 스타일 결정
+  let workStyle: 'explorer' | 'modifier' | 'balanced'
+  if (explorationRatio > 60) {
+    workStyle = 'explorer'
+  } else if (modificationRatio > 60) {
+    workStyle = 'modifier'
+  } else {
+    workStyle = 'balanced'
+  }
+
+  return {
+    explorationRatio,
+    modificationRatio,
+    explorationTools,
+    modificationTools,
+    automationUsage,
+    workStyle,
   }
 }

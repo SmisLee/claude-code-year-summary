@@ -31,6 +31,10 @@ export interface ClaudeStats {
   // 새로운 시각화 데이터
   modelUsage: ModelUsage[]          // 모델별 사용 통계
   timeAnalysis: TimeAnalysis        // 시간대별 분석
+
+  // 생산성 및 작업 패턴 분석
+  productivityStats: ProductivityStats  // 생산성 지표
+  codeWorkPattern: CodeWorkPattern      // 코드 작업 패턴
 }
 
 export interface MonthlyActivity {
@@ -100,4 +104,25 @@ export interface ParsedConversation {
   projectPath: string
   messageCount: number
   toolsUsed: string[]
+}
+
+// 생산성 지표
+export interface ProductivityStats {
+  messagesPerConversation: number    // 대화당 평균 메시지 수
+  mostActiveMonth: string            // 가장 활발했던 달
+  mostActiveMonthCount: number       // 해당 달의 대화 수
+  marathonSessions: number           // 2시간+ 연속 세션 횟수
+  longestBreak: number               // 가장 긴 휴식 일수
+  comebackStreak: number             // 휴식 후 복귀 연속 사용 일수
+  avgConversationsPerActiveDay: number // 활동일당 평균 대화 수
+}
+
+// 코드 작업 패턴 (탐색 vs 수정)
+export interface CodeWorkPattern {
+  explorationRatio: number           // 탐색 비율 (0-100)
+  modificationRatio: number          // 수정 비율 (0-100)
+  explorationTools: number           // Read, Grep, Glob 사용 횟수
+  modificationTools: number          // Edit, Write 사용 횟수
+  automationUsage: number            // Task (subagent) 사용 횟수
+  workStyle: 'explorer' | 'modifier' | 'balanced'  // 작업 스타일
 }
