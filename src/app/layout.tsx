@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Your Year in Claude Code 2024',
+  title: 'Your Year in Claude Code 2025',
   description: 'Discover your coding journey with Claude Code - Annual usage statistics',
   openGraph: {
-    title: 'Your Year in Claude Code 2024',
+    title: 'Your Year in Claude Code 2025',
     description: 'Discover your coding journey with Claude Code',
     type: 'website',
   },
