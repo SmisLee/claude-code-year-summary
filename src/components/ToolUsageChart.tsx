@@ -2,12 +2,26 @@
 
 import { motion } from 'framer-motion'
 import { ToolUsage } from '@/lib/types'
+import { Terminal } from 'lucide-react'
+import { EmptyState } from './EmptyState'
 
 interface ToolUsageChartProps {
   tools: ToolUsage[]
 }
 
 export function ToolUsageChart({ tools }: ToolUsageChartProps) {
+  if (tools.length === 0) {
+    return (
+      <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800">
+        <EmptyState
+          icon={Terminal}
+          title="도구 사용 데이터 없음"
+          description="분석 가능한 도구 사용 정보가 없습니다"
+        />
+      </div>
+    )
+  }
+
   const maxCount = Math.max(...tools.map(t => t.count))
 
   return (
@@ -29,8 +43,8 @@ export function ToolUsageChart({ tools }: ToolUsageChartProps) {
                   <span className="text-lg">{tool.icon}</span>
                   <span className="text-white font-medium">{tool.name}</span>
                 </div>
-                <span className="text-gray-400 text-sm">
-                  {tool.count.toLocaleString()}회
+                <span className="text-gray-400 text-sm stat-number">
+                  {tool.count.toLocaleString()}<span className="font-sans">회</span>
                 </span>
               </div>
 
@@ -39,14 +53,17 @@ export function ToolUsageChart({ tools }: ToolUsageChartProps) {
                   initial={{ width: 0 }}
                   animate={{ width: `${percentage}%` }}
                   transition={{ delay: index * 0.1 + 0.3, duration: 0.8, ease: 'easeOut' }}
-                  className="h-full rounded-full"
+                  className="h-full rounded-full relative overflow-hidden"
                   style={{
                     background: `linear-gradient(90deg,
                       hsl(${40 - index * 5}, 80%, 50%),
                       hsl(${50 - index * 5}, 80%, 60%)
                     )`,
                   }}
-                />
+                >
+                  {/* Shimmer 효과 */}
+                  <div className="absolute inset-0 shimmer" />
+                </motion.div>
               </div>
             </motion.div>
           )

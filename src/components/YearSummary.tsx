@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ClaudeStats } from '@/lib/types'
 import { StatCard } from './StatCard'
@@ -8,6 +9,7 @@ import { ToolUsageChart } from './ToolUsageChart'
 import { ProjectBreakdown } from './ProjectBreakdown'
 import { FunStatsCard } from './FunStatsCard'
 import { MonthlyChart } from './MonthlyChart'
+import { Toast } from './Toast'
 import {
   MessageSquare,
   Calendar,
@@ -17,6 +19,8 @@ import {
   Terminal,
   ArrowLeft,
   Share2,
+  Copy,
+  Twitter,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
@@ -27,6 +31,10 @@ interface YearSummaryProps {
 }
 
 export function YearSummary({ stats, onReset }: YearSummaryProps) {
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
+  const [showShareMenu, setShowShareMenu] = useState(false)
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -42,23 +50,39 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
     visible: { opacity: 1, y: 0 },
   }
 
-  const handleShare = async () => {
-    const shareText = `🤖 My Year in Claude Code 2024\n\n` +
+  const getShareText = () => {
+    const year = stats.firstConversation.getFullYear()
+    return `🤖 My Year in Claude Code ${year}\n\n` +
       `💬 ${stats.totalConversations.toLocaleString()} conversations\n` +
       `📊 ${stats.activeDays} active days\n` +
       `🔥 ${stats.longestStreak} day longest streak\n` +
       `📁 ${stats.projectCount} projects\n\n` +
       `#ClaudeCode #YearInReview`
+  }
 
+  const handleCopyToClipboard = async () => {
+    await navigator.clipboard.writeText(getShareText())
+    setToastMessage('클립보드에 복사되었습니다!')
+    setShowToast(true)
+    setShowShareMenu(false)
+  }
+
+  const handleShareTwitter = () => {
+    const text = encodeURIComponent(getShareText())
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank')
+    setShowShareMenu(false)
+  }
+
+  const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ text: shareText })
+        await navigator.share({ text: getShareText() })
       } catch (e) {
-        // User cancelled
+        // User cancelled - fall through to show menu
+        setShowShareMenu(true)
       }
     } else {
-      navigator.clipboard.writeText(shareText)
-      alert('클립보드에 복사되었습니다!')
+      setShowShareMenu(!showShareMenu)
     }
   }
 
@@ -73,9 +97,10 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
             onClick={onReset}
+            aria-label="처음 화면으로 돌아가기"
             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             <span>처음으로</span>
           </button>
 
@@ -83,15 +108,49 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
             Year in Claude Code
           </h1>
 
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-full hover:bg-amber-500/20 transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            <span className="hidden sm:inline">공유</span>
-          </button>
+          <div className="relative">
+            <button
+              onClick={handleShare}
+              aria-label="통계 공유하기"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-full hover:bg-amber-500/20 transition-colors"
+            >
+              <Share2 className="w-4 h-4" aria-hidden="true" />
+              <span className="hidden sm:inline">공유</span>
+            </button>
+
+            {/* 공유 메뉴 드롭다운 */}
+            {showShareMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute right-0 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-50"
+              >
+                <button
+                  onClick={handleCopyToClipboard}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors"
+                >
+                  <Copy className="w-4 h-4" />
+                  클립보드에 복사
+                </button>
+                <button
+                  onClick={handleShareTwitter}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors"
+                >
+                  <Twitter className="w-4 h-4" />
+                  X(Twitter)에 공유
+                </button>
+              </motion.div>
+            )}
+          </div>
         </div>
       </motion.header>
+
+      {/* Toast 알림 */}
+      <Toast
+        message={toastMessage}
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+      />
 
       {/* Hero Section */}
       <motion.section
@@ -108,18 +167,28 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           transition={{ delay: 0.3, type: 'spring' }}
           className="relative"
         >
-          <p className="text-amber-500/80 text-sm uppercase tracking-wider mb-4">
+          <p className="text-amber-500/80 text-sm uppercase tracking-wider mb-6">
             {format(stats.firstConversation, 'yyyy년 M월 d일', { locale: ko })}부터 함께
           </p>
 
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="text-white">당신과 Claude의</span>
-            <br />
-            <span className="gradient-text">{stats.firstConversation.getFullYear()}년</span>
+          <h2 className="text-3xl md:text-4xl font-medium text-gray-300 mb-2">
+            당신과 Claude의
           </h2>
 
-          <p className="text-xl text-gray-400">
-            {stats.activeDays}일 동안 {stats.totalConversations.toLocaleString()}번의 대화
+          {/* 핵심 숫자 강조 */}
+          <div className="mb-6">
+            <span className="text-7xl md:text-9xl font-black gradient-text stat-number">
+              {stats.activeDays}
+            </span>
+            <span className="text-2xl md:text-3xl text-gray-400 ml-2">일</span>
+          </div>
+
+          <p className="text-lg text-gray-500">
+            <span className="text-white stat-number">{stats.totalConversations.toLocaleString()}</span>
+            <span className="mx-1">번의 대화</span>
+            <span className="text-gray-600 mx-2">·</span>
+            <span className="text-white stat-number">{stats.projectCount}</span>
+            <span className="mx-1">개의 프로젝트</span>
           </p>
         </motion.div>
       </motion.section>
@@ -180,9 +249,9 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
               <Zap className="w-5 h-5 text-purple-400" />
               <span className="text-gray-400">총 토큰 사용량</span>
             </div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-3xl font-bold text-white stat-number">
               {(stats.totalTokens / 1_000_000).toFixed(2)}
-              <span className="text-lg text-gray-400 ml-1">M tokens</span>
+              <span className="text-lg text-gray-400 ml-2 font-sans">M tokens</span>
             </div>
           </div>
         </motion.div>

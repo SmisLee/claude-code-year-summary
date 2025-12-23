@@ -71,3 +71,27 @@ body {
   transform: scale(1.2);
   z-index: 10;
 }
+
+/* 숫자 전용 스타일 - tabular figures + mono 폰트 */
+.stat-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.02em;
+}
+
+/* 프로그레스 바 shimmer 효과 */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}

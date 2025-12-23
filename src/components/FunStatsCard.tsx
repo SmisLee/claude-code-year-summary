@@ -67,7 +67,7 @@ export function FunStatsCard({ funStats, peakDay }: FunStatsCardProps) {
   ]
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {stats.map((stat, index) => (
         <motion.div
           key={stat.label}
@@ -78,19 +78,23 @@ export function FunStatsCard({ funStats, peakDay }: FunStatsCardProps) {
           whileHover={{ scale: 1.02 }}
           className="relative overflow-hidden bg-gray-900/50 rounded-2xl p-5 border border-gray-800"
         >
-          <div className={`
-            inline-flex p-2 rounded-xl mb-3
-            bg-gradient-to-br ${stat.color} bg-opacity-20
-          `}>
+          <motion.div
+            className={`
+              inline-flex p-2 rounded-xl mb-3
+              bg-gradient-to-br ${stat.color} bg-opacity-20
+            `}
+            whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
+            transition={{ duration: 0.3 }}
+          >
             <div className="text-white opacity-90">
               {stat.icon}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="text-2xl font-bold text-white mb-1">
+          <div className="text-2xl font-bold text-white mb-1 stat-number">
             {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
             {stat.suffix && (
-              <span className="text-sm text-gray-400 ml-1">{stat.suffix}</span>
+              <span className="text-sm text-gray-400 ml-2 font-sans">{stat.suffix}</span>
             )}
           </div>
 

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FileDropzone } from '@/components/FileDropzone'
 import { YearSummary } from '@/components/YearSummary'
 import { ClaudeStats } from '@/lib/types'
-import { Sparkles, Code2, Terminal } from 'lucide-react'
+import { Sparkles, Code2, Terminal, Play, BarChart3, Calendar, Flame } from 'lucide-react'
 
 export default function Home() {
   const [stats, setStats] = useState<ClaudeStats | null>(null)
@@ -69,43 +69,57 @@ export default function Home() {
               />
             </motion.div>
 
-            {/* Instructions */}
+            {/* Preview Cards */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="mt-12 text-center"
+              className="mt-16 w-full max-w-3xl"
             >
-              <p className="text-gray-500 text-sm mb-4">
-                ~/.claude 폴더를 드래그하거나 클릭하여 선택하세요
+              <p className="text-gray-500 text-sm mb-6 text-center">
+                이런 통계를 확인할 수 있어요
               </p>
 
-              <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Code2 className="w-4 h-4" />
-                  <span>프로젝트 수</span>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                  <Calendar className="w-6 h-6 text-green-500 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">활동 히트맵</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Terminal className="w-4 h-4" />
-                  <span>대화 기록</span>
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                  <BarChart3 className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">도구 사용량</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  <span>도구 사용량</span>
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                  <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">연속 기록</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Demo Button */}
+            {/* Demo Button - 강조 */}
             <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setStats(generateDemoStats())}
+              aria-label="데모 데이터로 미리보기"
+              className="mt-8 flex items-center gap-2 px-6 py-3 text-sm bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 hover:border-amber-500/50 rounded-full transition-all"
+            >
+              <Play className="w-4 h-4" aria-hidden="true" />
+              데모로 미리보기
+            </motion.button>
+
+            {/* Privacy note */}
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              onClick={() => setStats(generateDemoStats())}
-              className="mt-8 px-6 py-3 text-sm text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600 rounded-full transition-all"
+              transition={{ delay: 1 }}
+              className="mt-6 text-xs text-gray-600"
             >
-              데모 데이터로 미리보기
-            </motion.button>
+              ~/.claude 폴더를 드래그하거나 클릭하여 선택하세요
+            </motion.p>
           </motion.div>
         ) : (
           <motion.div
@@ -169,9 +183,9 @@ function generateDemoStats(): ClaudeStats {
       mostProductiveDay: '화요일',
     },
 
-    firstConversation: new Date('2024-01-15'),
+    firstConversation: new Date('2025-01-15'),
     peakDay: {
-      date: new Date('2024-09-12'),
+      date: new Date('2025-09-12'),
       conversations: 24,
     },
   }
@@ -179,8 +193,8 @@ function generateDemoStats(): ClaudeStats {
 
 function generateHeatmapData() {
   const data: { date: string; count: number }[] = []
-  const startDate = new Date('2024-01-01')
-  const endDate = new Date('2024-12-31')
+  const startDate = new Date('2025-01-01')
+  const endDate = new Date('2025-12-31')
 
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dayOfWeek = d.getDay()

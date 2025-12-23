@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ProjectUsage } from '@/lib/types'
 import { FolderOpen } from 'lucide-react'
+import { EmptyState } from './EmptyState'
 
 interface ProjectBreakdownProps {
   projects: ProjectUsage[]
@@ -41,7 +42,7 @@ export function ProjectBreakdown({ projects }: ProjectBreakdownProps) {
                 <span className="text-white font-medium truncate">
                   {project.name}
                 </span>
-                <span className="text-gray-400 text-sm ml-2">
+                <span className="text-gray-400 text-sm ml-2 stat-number">
                   {project.percentage}%
                 </span>
               </div>
@@ -55,8 +56,8 @@ export function ProjectBreakdown({ projects }: ProjectBreakdownProps) {
                 />
               </div>
 
-              <span className="text-xs text-gray-500">
-                {project.conversations.toLocaleString()}회 대화
+              <span className="text-xs text-gray-500 stat-number">
+                {project.conversations.toLocaleString()}<span className="font-sans">회 대화</span>
               </span>
             </div>
           </motion.div>
@@ -64,9 +65,11 @@ export function ProjectBreakdown({ projects }: ProjectBreakdownProps) {
       </div>
 
       {projects.length === 0 && (
-        <div className="text-center text-gray-500 py-8">
-          프로젝트 데이터가 없습니다
-        </div>
+        <EmptyState
+          icon={FolderOpen}
+          title="프로젝트 데이터 없음"
+          description="분석 가능한 프로젝트 정보가 없습니다"
+        />
       )}
     </div>
   )

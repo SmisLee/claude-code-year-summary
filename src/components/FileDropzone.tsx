@@ -2,9 +2,11 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Upload, Folder, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { Upload, Folder, Loader2, CheckCircle, AlertCircle, Circle, FileText, BarChart3 } from 'lucide-react'
 import { ClaudeStats } from '@/lib/types'
 import { parseClaudeData } from '@/lib/parseClaudeData'
+
+type LoadingStep = 'reading' | 'parsing' | 'calculating' | 'done'
 
 interface FileDropzoneProps {
   onDataParsed: (stats: ClaudeStats) => void
@@ -16,6 +18,7 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
   const [isDragOver, setIsDragOver] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState<string>('')
+  const [loadingStep, setLoadingStep] = useState<LoadingStep>('reading')
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFiles = useCallback(async (files: FileList | null) => {
@@ -23,16 +26,25 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
 
     setIsLoading(true)
     setError(null)
-    setProgress('파일 분석 중...')
+    setLoadingStep('reading')
+    setProgress('파일 읽는 중...')
 
     try {
-      const stats = await parseClaudeData(files, (msg) => setProgress(msg))
+      const stats = await parseClaudeData(files, (msg) => {
+        setProgress(msg)
+        // 진행 상태에 따라 step 업데이트
+        if (msg.includes('읽는')) setLoadingStep('reading')
+        else if (msg.includes('분석') || msg.includes('파싱')) setLoadingStep('parsing')
+        else if (msg.includes('계산')) setLoadingStep('calculating')
+      })
+      setLoadingStep('done')
       onDataParsed(stats)
     } catch (err) {
       setError(err instanceof Error ? err.message : '파일 처리 중 오류가 발생했습니다')
     } finally {
       setIsLoading(false)
       setProgress('')
+      setLoadingStep('reading')
     }
   }, [onDataParsed, setIsLoading])
 
@@ -85,6 +97,10 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
+      role="button"
+      tabIndex={0}
+      aria-label="Claude Code 데이터 폴더 업로드"
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick() }}
       animate={{
         scale: isDragOver ? 1.02 : 1,
         borderColor: isDragOver ? '#D97706' : '#374151',
@@ -94,6 +110,7 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
         border-2 border-dashed rounded-3xl
         p-12 text-center
         transition-all duration-300
+        focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0a]
         ${isDragOver ? 'bg-amber-500/5' : 'bg-gray-900/50'}
         ${error ? 'border-red-500/50' : ''}
         hover:border-amber-500/50 hover:bg-gray-900/80
@@ -112,10 +129,30 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
 
       <div className="flex flex-col items-center gap-4">
         {isLoading ? (
-          <>
-            <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
-            <p className="text-gray-300">{progress}</p>
-          </>
+          <div className="w-full max-w-xs">
+            {/* 단계별 진행 표시 */}
+            <div className="space-y-3">
+              <LoadingStepItem
+                icon={<FileText className="w-4 h-4" />}
+                label="파일 읽기"
+                isActive={loadingStep === 'reading'}
+                isCompleted={['parsing', 'calculating', 'done'].includes(loadingStep)}
+              />
+              <LoadingStepItem
+                icon={<Folder className="w-4 h-4" />}
+                label="데이터 분석"
+                isActive={loadingStep === 'parsing'}
+                isCompleted={['calculating', 'done'].includes(loadingStep)}
+              />
+              <LoadingStepItem
+                icon={<BarChart3 className="w-4 h-4" />}
+                label="통계 계산"
+                isActive={loadingStep === 'calculating'}
+                isCompleted={loadingStep === 'done'}
+              />
+            </div>
+            <p className="text-xs text-gray-500 text-center mt-4">{progress}</p>
+          </div>
         ) : error ? (
           <>
             <AlertCircle className="w-12 h-12 text-red-500" />
@@ -169,12 +206,60 @@ export function FileDropzone({ onDataParsed, isLoading, setIsLoading }: FileDrop
   )
 }
 
+// 로딩 단계 아이템 컴포넌트
+function LoadingStepItem({
+  icon,
+  label,
+  isActive,
+  isCompleted,
+}: {
+  icon: React.ReactNode
+  label: string
+  isActive: boolean
+  isCompleted: boolean
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0.5 }}
+      animate={{ opacity: isActive || isCompleted ? 1 : 0.5 }}
+      className="flex items-center gap-3"
+    >
+      <div
+        className={`
+          flex items-center justify-center w-8 h-8 rounded-full transition-colors
+          ${isCompleted ? 'bg-green-500/20 text-green-500' : ''}
+          ${isActive ? 'bg-amber-500/20 text-amber-500' : ''}
+          ${!isActive && !isCompleted ? 'bg-gray-800 text-gray-600' : ''}
+        `}
+      >
+        {isCompleted ? (
+          <CheckCircle className="w-4 h-4" />
+        ) : isActive ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          icon
+        )}
+      </div>
+      <span
+        className={`
+          text-sm transition-colors
+          ${isCompleted ? 'text-green-500' : ''}
+          ${isActive ? 'text-amber-500' : ''}
+          ${!isActive && !isCompleted ? 'text-gray-600' : ''}
+        `}
+      >
+        {label}
+      </span>
+    </motion.div>
+  )
+}
+
 async function traverseFileTree(item: FileSystemEntry, files: File[]): Promise<void> {
   return new Promise((resolve) => {
     if (item.isFile) {
       (item as FileSystemFileEntry).file((file) => {
-        // Only include JSON and MD files
-        if (file.name.endsWith('.json') || file.name.endsWith('.md')) {
+        // Only include JSON and JSONL files
+        if (file.name.endsWith('.json') || file.name.endsWith('.jsonl')) {
           files.push(file)
         }
         resolve()
