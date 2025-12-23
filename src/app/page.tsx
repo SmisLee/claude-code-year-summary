@@ -1,28 +1,68 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FileDropzone } from '@/components/FileDropzone'
 import { YearSummary } from '@/components/YearSummary'
 import { AdSlot } from '@/components/AdSlot'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 // AdSense ad unit IDs (create in AdSense console after approval)
 const AD_SLOTS = {
   landing: '', // Landing page ad
 }
 import { ClaudeStats } from '@/lib/types'
-import { Sparkles, Code2, Terminal, Play, BarChart3, Calendar, Flame, Cpu, FolderOpen, Moon } from 'lucide-react'
+import { Sparkles, Terminal, Play, BarChart3, Calendar, Flame, Cpu, FolderOpen, Moon, MessageSquare } from 'lucide-react'
+
+// 공유 링크에서 파싱된 통계
+interface SharedStats {
+  activeDays: number
+  totalConversations: number
+  projectCount: number
+  longestStreak: number
+  year: number
+}
 
 export default function Home() {
   const [stats, setStats] = useState<ClaudeStats | null>(null)
+  const [sharedStats, setSharedStats] = useState<SharedStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  // 공유 링크 파라미터 확인
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const shareParam = params.get('share')
+
+    if (shareParam) {
+      try {
+        const decoded = atob(shareParam)
+        const shareParams = new URLSearchParams(decoded)
+
+        setSharedStats({
+          activeDays: Number(shareParams.get('d')) || 0,
+          totalConversations: Number(shareParams.get('c')) || 0,
+          projectCount: Number(shareParams.get('p')) || 0,
+          longestStreak: Number(shareParams.get('s')) || 0,
+          year: Number(shareParams.get('y')) || new Date().getFullYear(),
+        })
+      } catch (e) {
+        console.error('Failed to parse share link:', e)
+      }
+    }
+  }, [])
 
   const handleDataParsed = (parsedStats: ClaudeStats) => {
     setStats(parsedStats)
   }
 
+  const handleDismissShared = () => {
+    setSharedStats(null)
+    // URL에서 share 파라미터 제거
+    window.history.replaceState({}, '', window.location.pathname)
+  }
+
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-[--bg-primary] transition-colors">
       <AnimatePresence mode="wait">
         {!stats ? (
           <motion.div
@@ -30,8 +70,67 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, y: -20 }}
-            className="min-h-screen flex flex-col items-center justify-center px-4"
+            className="min-h-screen flex flex-col items-center justify-center px-4 relative"
           >
+            {/* 테마 토글 - 우상단 */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="absolute top-4 right-4"
+            >
+              <ThemeToggle />
+            </motion.div>
+
+            {/* 공유된 통계 카드 */}
+            {sharedStats && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-4 left-4 right-20 max-w-md"
+              >
+                <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-amber-500 text-sm font-medium">
+                      Someone shared their {sharedStats.year} stats!
+                    </span>
+                    <button
+                      onClick={handleDismissShared}
+                      className="text-[--text-muted] hover:text-[--text-primary] transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-4 gap-3 text-center">
+                    <div>
+                      <div className="text-lg font-bold text-[--text-primary] stat-number">
+                        {sharedStats.activeDays}
+                      </div>
+                      <div className="text-xs text-[--text-secondary]">days</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-[--text-primary] stat-number">
+                        {sharedStats.totalConversations.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-[--text-secondary]">chats</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-[--text-primary] stat-number">
+                        {sharedStats.projectCount}
+                      </div>
+                      <div className="text-xs text-[--text-secondary]">projects</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-[--text-primary] stat-number">
+                        {sharedStats.longestStreak}
+                      </div>
+                      <div className="text-xs text-[--text-secondary]">streak</div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Hero Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -48,10 +147,10 @@ export default function Home() {
               <h1 className="text-5xl md:text-7xl font-bold mb-4">
                 <span className="gradient-text">Your Year in</span>
                 <br />
-                <span className="text-white">Claude Code</span>
+                <span className="text-[--text-primary]">Claude Code</span>
               </h1>
 
-              <p className="text-xl text-gray-400 max-w-lg mx-auto mb-2">
+              <p className="text-xl text-[--text-secondary] max-w-lg mx-auto mb-2">
                 Look back on your {new Date().getFullYear()} coding journey with Claude
               </p>
 
@@ -82,34 +181,34 @@ export default function Home() {
               transition={{ delay: 0.6 }}
               className="mt-16 w-full max-w-3xl"
             >
-              <p className="text-gray-500 text-sm mb-6 text-center">
+              <p className="text-[--text-tertiary] text-sm mb-6 text-center">
                 See stats like these
               </p>
 
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                <div className="bg-[--bg-secondary]/50 border border-[--border-primary] rounded-2xl p-4 text-center hover:border-[--border-secondary] transition-colors">
                   <Calendar className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">Activity Heatmap</p>
+                  <p className="text-xs text-[--text-secondary]">Activity Heatmap</p>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                <div className="bg-[--bg-secondary]/50 border border-[--border-primary] rounded-2xl p-4 text-center hover:border-[--border-secondary] transition-colors">
                   <BarChart3 className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">Tool Usage</p>
+                  <p className="text-xs text-[--text-secondary]">Tool Usage</p>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                <div className="bg-[--bg-secondary]/50 border border-[--border-primary] rounded-2xl p-4 text-center hover:border-[--border-secondary] transition-colors">
                   <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">Streaks</p>
+                  <p className="text-xs text-[--text-secondary]">Streaks</p>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                <div className="bg-[--bg-secondary]/50 border border-[--border-primary] rounded-2xl p-4 text-center hover:border-[--border-secondary] transition-colors">
                   <Cpu className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">Model Usage</p>
+                  <p className="text-xs text-[--text-secondary]">Model Usage</p>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                <div className="bg-[--bg-secondary]/50 border border-[--border-primary] rounded-2xl p-4 text-center hover:border-[--border-secondary] transition-colors">
                   <FolderOpen className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">Projects</p>
+                  <p className="text-xs text-[--text-secondary]">Projects</p>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 text-center">
+                <div className="bg-[--bg-secondary]/50 border border-[--border-primary] rounded-2xl p-4 text-center hover:border-[--border-secondary] transition-colors">
                   <Moon className="w-6 h-6 text-indigo-500 mx-auto mb-2" />
-                  <p className="text-xs text-gray-400">Night Owl</p>
+                  <p className="text-xs text-[--text-secondary]">Night Owl</p>
                 </div>
               </div>
             </motion.div>
@@ -146,7 +245,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
-              className="mt-6 text-xs text-gray-600"
+              className="mt-6 text-xs text-[--text-muted]"
             >
               Drag and drop your ~/.claude folder or click to select
             </motion.p>
