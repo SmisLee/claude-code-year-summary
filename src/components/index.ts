@@ -1,3 +1,4 @@
+export { AdSlot } from './AdSlot'
 export { FileDropzone } from './FileDropzone'
 export { YearSummary } from './YearSummary'
 export { StatCard } from './StatCard'

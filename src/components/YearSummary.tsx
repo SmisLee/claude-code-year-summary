@@ -12,6 +12,13 @@ import { MonthlyChart } from './MonthlyChart'
 import { TimeAnalysisChart } from './TimeAnalysisChart'
 import { ModelUsageChart } from './ModelUsageChart'
 import { Toast } from './Toast'
+import { AdSlot } from './AdSlot'
+
+// AdSense 광고 단위 ID (승인 후 AdSense 콘솔에서 생성)
+const AD_SLOTS = {
+  afterHeatmap: '', // 히트맵 아래 광고
+  beforeFooter: '', // Footer 위 광고
+}
 import {
   MessageSquare,
   Calendar,
@@ -261,6 +268,13 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         <YearHeatmap data={stats.weeklyHeatmap} />
       </motion.section>
 
+      {/* Ad Slot - 히트맵과 월별 차트 사이 */}
+      {AD_SLOTS.afterHeatmap && (
+        <div className="max-w-6xl mx-auto px-4 mt-8">
+          <AdSlot slot={AD_SLOTS.afterHeatmap} format="horizontal" />
+        </div>
+      )}
+
       {/* Monthly Activity Chart */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -340,6 +354,13 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
         </h3>
         <FunStatsCard funStats={stats.funStats} peakDay={stats.peakDay} />
       </motion.section>
+
+      {/* Ad Slot - Footer 위 */}
+      {AD_SLOTS.beforeFooter && (
+        <div className="max-w-6xl mx-auto px-4 mt-16">
+          <AdSlot slot={AD_SLOTS.beforeFooter} format="auto" />
+        </div>
+      )}
 
       {/* Footer */}
       <motion.footer

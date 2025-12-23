@@ -25,6 +25,12 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
+        {/* AdSense 소유권 확인 - 크롤러가 감지할 수 있도록 head에 직접 배치 */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2942250321314936"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className="min-h-screen bg-[#0a0a0a] text-white antialiased">
         {children}

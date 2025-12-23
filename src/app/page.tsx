@@ -4,6 +4,12 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FileDropzone } from '@/components/FileDropzone'
 import { YearSummary } from '@/components/YearSummary'
+import { AdSlot } from '@/components/AdSlot'
+
+// AdSense 광고 단위 ID (승인 후 AdSense 콘솔에서 생성)
+const AD_SLOTS = {
+  landing: '', // 랜딩 페이지 광고
+}
 import { ClaudeStats } from '@/lib/types'
 import { Sparkles, Code2, Terminal, Play, BarChart3, Calendar, Flame } from 'lucide-react'
 
@@ -95,6 +101,18 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
+
+            {/* Ad Slot - Preview Cards 아래 */}
+            {AD_SLOTS.landing && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="mt-8 w-full max-w-3xl"
+              >
+                <AdSlot slot={AD_SLOTS.landing} format="horizontal" />
+              </motion.div>
+            )}
 
             {/* Demo Button - 강조 */}
             <motion.button
