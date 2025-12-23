@@ -245,20 +245,6 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
             />
           </motion.div>
         </div>
-
-        {/* Message count */}
-        <motion.div variants={itemVariants} className="mt-4">
-          <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800">
-            <div className="flex items-center gap-3 mb-2">
-              <Zap className="w-5 h-5 text-purple-400" />
-              <span className="text-gray-400">총 메시지</span>
-            </div>
-            <div className="text-3xl font-bold text-white stat-number">
-              {stats.totalMessages.toLocaleString()}
-              <span className="text-lg text-gray-400 ml-2 font-sans">개</span>
-            </div>
-          </div>
-        </motion.div>
       </motion.section>
 
       {/* Activity Heatmap */}
