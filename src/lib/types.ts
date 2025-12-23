@@ -27,6 +27,10 @@ export interface ClaudeStats {
     date: Date
     conversations: number
   }
+
+  // 새로운 시각화 데이터
+  modelUsage: ModelUsage[]          // 모델별 사용 통계
+  timeAnalysis: TimeAnalysis        // 시간대별 분석
 }
 
 export interface MonthlyActivity {
@@ -59,6 +63,35 @@ export interface FunStats {
   longestSession: string  // 가장 긴 세션
   favoriteTime: string    // 가장 활동적인 시간대
   mostProductiveDay: string // 가장 생산적인 요일
+}
+
+// 모델별 사용 통계
+export interface ModelUsage {
+  name: string        // opus, sonnet, haiku
+  count: number       // 대화 수
+  percentage: number  // 비율
+  color: string       // 색상 코드
+}
+
+// 시간대별 활동 (24시간)
+export interface HourlyActivity {
+  hour: number        // 0-23
+  count: number       // 해당 시간대 대화 수
+}
+
+// 요일×시간 2D 히트맵 데이터
+export interface DayHourActivity {
+  day: number         // 0-6 (일-토)
+  hour: number        // 0-23
+  count: number       // 해당 시간대 대화 수
+}
+
+// 시간 분석 통계
+export interface TimeAnalysis {
+  hourlyActivity: HourlyActivity[]      // 24시간 방사형 차트용
+  dayHourMatrix: DayHourActivity[]      // 요일×시간 2D 히트맵용
+  peakHour: number                      // 가장 활발한 시간
+  peakDay: number                       // 가장 활발한 요일
 }
 
 export interface ParsedConversation {

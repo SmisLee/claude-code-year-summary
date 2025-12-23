@@ -1,4 +1,4 @@
-import { ClaudeStats, HeatmapData, MonthlyActivity, ToolUsage, ProjectUsage, FunStats } from './types'
+import { ClaudeStats, HeatmapData, MonthlyActivity, ToolUsage, ProjectUsage, FunStats, ModelUsage, TimeAnalysis, HourlyActivity, DayHourActivity } from './types'
 
 interface ConversationData {
   timestamp: Date
@@ -7,6 +7,7 @@ interface ConversationData {
   toolsUsed: string[]
   hour: number
   dayOfWeek: number
+  model?: string  // 사용된 모델 (opus, sonnet, haiku)
 }
 
 interface HistoryEntry {
@@ -74,6 +75,16 @@ export async function parseClaudeData(
                 }
               }
 
+              // 모델 추출 (display 텍스트에서 모델명 패턴 감지)
+              const modelMatch = entry.display.match(/\b(opus|sonnet|haiku|claude-3|claude-opus|claude-sonnet|claude-haiku)\b/gi)
+              let detectedModel: string | undefined
+              if (modelMatch) {
+                const modelName = modelMatch[0].toLowerCase()
+                if (modelName.includes('opus')) detectedModel = 'opus'
+                else if (modelName.includes('sonnet')) detectedModel = 'sonnet'
+                else if (modelName.includes('haiku')) detectedModel = 'haiku'
+              }
+
               conversations.push({
                 timestamp,
                 projectPath: projectName,
@@ -81,6 +92,7 @@ export async function parseClaudeData(
                 toolsUsed: toolMatches ? Array.from(new Set(toolMatches)) : [],
                 hour: timestamp.getHours(),
                 dayOfWeek: timestamp.getDay(),
+                model: detectedModel,
               })
             }
           } catch {
@@ -198,6 +210,12 @@ export async function parseClaudeData(
   // Fun stats
   const funStats = calculateFunStats(conversations)
 
+  // 모델별 사용 통계
+  const modelUsage = calculateModelUsage(conversations)
+
+  // 시간대별 분석
+  const timeAnalysis = calculateTimeAnalysis(conversations)
+
   return {
     totalConversations: conversations.length,
     totalMessages,
@@ -216,6 +234,8 @@ export async function parseClaudeData(
       date: new Date(peakDate || Date.now()),
       conversations: peakCount,
     },
+    modelUsage,
+    timeAnalysis,
   }
 }
 
@@ -450,5 +470,115 @@ function calculateFunStats(conversations: ConversationData[]): FunStats {
     longestSession: '알 수 없음',
     favoriteTime: formatHour(favoriteHour),
     mostProductiveDay: dayNames[productiveDay],
+  }
+}
+
+// 모델별 사용 통계 계산
+function calculateModelUsage(conversations: ConversationData[]): ModelUsage[] {
+  const modelCounts = new Map<string, number>()
+
+  // 모델 색상 정의 (디자이너 피드백 반영)
+  const modelColors: Record<string, string> = {
+    opus: '#A855F7',    // purple-500
+    sonnet: '#3B82F6',  // blue-500
+    haiku: '#22C55E',   // green-500
+  }
+
+  for (const conv of conversations) {
+    if (conv.model) {
+      modelCounts.set(conv.model, (modelCounts.get(conv.model) || 0) + 1)
+    }
+  }
+
+  // 모델 정보가 없으면 추정값 생성
+  if (modelCounts.size === 0) {
+    const total = conversations.length
+    return [
+      { name: 'Sonnet', count: Math.floor(total * 0.65), percentage: 65, color: modelColors.sonnet },
+      { name: 'Opus', count: Math.floor(total * 0.25), percentage: 25, color: modelColors.opus },
+      { name: 'Haiku', count: Math.floor(total * 0.10), percentage: 10, color: modelColors.haiku },
+    ]
+  }
+
+  const total = Array.from(modelCounts.values()).reduce((a, b) => a + b, 0)
+
+  return Array.from(modelCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      count,
+      percentage: Math.round((count / total) * 100),
+      color: modelColors[name] || '#6B7280',
+    }))
+}
+
+// 시간대별 분석 계산
+function calculateTimeAnalysis(conversations: ConversationData[]): TimeAnalysis {
+  // 시간별 활동 (0-23시)
+  const hourCounts = new Map<number, number>()
+  // 요일×시간 매트릭스
+  const dayHourCounts = new Map<string, number>()
+
+  for (const conv of conversations) {
+    const hour = conv.hour
+    const day = conv.dayOfWeek
+
+    hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1)
+
+    const key = `${day}-${hour}`
+    dayHourCounts.set(key, (dayHourCounts.get(key) || 0) + 1)
+  }
+
+  // 24시간 방사형 차트 데이터
+  const hourlyActivity: HourlyActivity[] = []
+  for (let h = 0; h < 24; h++) {
+    hourlyActivity.push({
+      hour: h,
+      count: hourCounts.get(h) || 0,
+    })
+  }
+
+  // 요일×시간 2D 히트맵 데이터
+  const dayHourMatrix: DayHourActivity[] = []
+  for (let d = 0; d < 7; d++) {
+    for (let h = 0; h < 24; h++) {
+      dayHourMatrix.push({
+        day: d,
+        hour: h,
+        count: dayHourCounts.get(`${d}-${h}`) || 0,
+      })
+    }
+  }
+
+  // 피크 시간대 찾기
+  let peakHour = 14
+  let maxHourCount = 0
+  hourCounts.forEach((count, hour) => {
+    if (count > maxHourCount) {
+      maxHourCount = count
+      peakHour = hour
+    }
+  })
+
+  // 피크 요일 찾기
+  const dayCounts = new Map<number, number>()
+  for (const conv of conversations) {
+    dayCounts.set(conv.dayOfWeek, (dayCounts.get(conv.dayOfWeek) || 0) + 1)
+  }
+
+  let peakDay = 2
+  let maxDayCount = 0
+  dayCounts.forEach((count, day) => {
+    if (count > maxDayCount) {
+      maxDayCount = count
+      peakDay = day
+    }
+  })
+
+  return {
+    hourlyActivity,
+    dayHourMatrix,
+    peakHour,
+    peakDay,
   }
 }

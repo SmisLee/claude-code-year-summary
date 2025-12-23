@@ -188,6 +188,66 @@ function generateDemoStats(): ClaudeStats {
       date: new Date('2025-09-12'),
       conversations: 24,
     },
+
+    // 모델별 사용 통계
+    modelUsage: [
+      { name: 'Sonnet', count: 810, percentage: 65, color: '#3B82F6' },
+      { name: 'Opus', count: 312, percentage: 25, color: '#A855F7' },
+      { name: 'Haiku', count: 125, percentage: 10, color: '#22C55E' },
+    ],
+
+    // 시간대별 분석
+    timeAnalysis: generateTimeAnalysisData(),
+  }
+}
+
+function generateTimeAnalysisData() {
+  // 24시간 활동 패턴 (오후 2-4시 피크)
+  const hourlyActivity = Array.from({ length: 24 }, (_, hour) => {
+    let baseActivity = 10
+    // 업무 시간 증가
+    if (hour >= 9 && hour <= 18) baseActivity = 50
+    // 점심 시간 감소
+    if (hour >= 12 && hour <= 13) baseActivity = 30
+    // 오후 2-4시 피크
+    if (hour >= 14 && hour <= 16) baseActivity = 80
+    // 야간 감소
+    if (hour >= 22 || hour <= 6) baseActivity = 5
+
+    return {
+      hour,
+      count: Math.floor(baseActivity * (0.7 + Math.random() * 0.6)),
+    }
+  })
+
+  // 요일×시간 매트릭스
+  const dayHourMatrix = []
+  for (let day = 0; day < 7; day++) {
+    for (let hour = 0; hour < 24; hour++) {
+      const isWeekend = day === 0 || day === 6
+      const isWorkHour = hour >= 9 && hour <= 18
+      let baseCount = 5
+
+      if (!isWeekend && isWorkHour) {
+        baseCount = 25
+        if (hour >= 14 && hour <= 16) baseCount = 40
+      } else if (isWeekend && hour >= 10 && hour <= 16) {
+        baseCount = 10
+      }
+
+      dayHourMatrix.push({
+        day,
+        hour,
+        count: Math.floor(baseCount * (0.5 + Math.random())),
+      })
+    }
+  }
+
+  return {
+    hourlyActivity,
+    dayHourMatrix,
+    peakHour: 15, // 오후 3시
+    peakDay: 2,   // 화요일
   }
 }
 

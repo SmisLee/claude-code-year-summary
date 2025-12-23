@@ -9,6 +9,8 @@ import { ToolUsageChart } from './ToolUsageChart'
 import { ProjectBreakdown } from './ProjectBreakdown'
 import { FunStatsCard } from './FunStatsCard'
 import { MonthlyChart } from './MonthlyChart'
+import { TimeAnalysisChart } from './TimeAnalysisChart'
+import { ModelUsageChart } from './ModelUsageChart'
 import { Toast } from './Toast'
 import {
   MessageSquare,
@@ -21,6 +23,8 @@ import {
   Share2,
   Copy,
   Twitter,
+  Clock,
+  Cpu,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
@@ -282,6 +286,34 @@ export function YearSummary({ stats, onReset }: YearSummaryProps) {
           📊 월별 활동
         </h3>
         <MonthlyChart data={stats.monthlyActivity} />
+      </motion.section>
+
+      {/* Time Analysis - 시간대별 분석 */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="max-w-6xl mx-auto px-4 mt-16"
+      >
+        <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+          <Clock className="w-6 h-6 text-indigo-400" />
+          시간대별 활동 패턴
+        </h3>
+        <TimeAnalysisChart data={stats.timeAnalysis} />
+      </motion.section>
+
+      {/* Model Usage - 모델별 사용 통계 */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="max-w-6xl mx-auto px-4 mt-16"
+      >
+        <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+          <Cpu className="w-6 h-6 text-purple-400" />
+          모델별 사용량
+        </h3>
+        <ModelUsageChart models={stats.modelUsage} />
       </motion.section>
 
       {/* Tool Usage & Projects */}
