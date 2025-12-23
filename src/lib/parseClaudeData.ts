@@ -78,7 +78,7 @@ export async function parseClaudeData(
                 timestamp,
                 projectPath: projectName,
                 messageCount: 1,
-                toolsUsed: toolMatches ? [...new Set(toolMatches)] : [],
+                toolsUsed: toolMatches ? Array.from(new Set(toolMatches)) : [],
                 hour: timestamp.getHours(),
                 dayOfWeek: timestamp.getDay(),
               })
@@ -139,7 +139,7 @@ export async function parseClaudeData(
                 timestamp,
                 projectPath,
                 messageCount: msgCount,
-                toolsUsed: [...new Set(tools)],
+                toolsUsed: Array.from(new Set(tools)),
                 hour: timestamp.getHours(),
                 dayOfWeek: timestamp.getDay(),
               })
